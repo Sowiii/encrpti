@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Encryption</title>
+</head>
+<body>
+    <h2>Text Encryption</h2>
+    
+    <textarea id="inputMessage" placeholder="Enter text to encrypt"></textarea>
+    <button onclick="encryptText()">Encrypt</button>
+    
+    <h3>Encrypted Text:</h3>
+    <p id="encryptedOutput"></p>
+
+    <input type="text" id="decryptInput" placeholder="Enter encrypted text">
+    <button onclick="decryptText()">Decrypt</button>
+    
+    <h3>Decrypted Text:</h3>
+    <p id="decryptedOutput"></p>
+
+    <br><br>
+    <button onclick="window.location.href='/dashboard'">Back to Dashboard</button>
+
+    <script>
+        function encryptText() {
+            let message = document.getElementById("inputMessage").value;
+            fetch("/encrypt", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("encryptedOutput").innerText = data.encrypted_message;
+                } else {
+                    alert("Encryption failed: " + data.error);
+                }
+            });
+        }
+
+        function decryptText() {
+            let encryptedMessage = document.getElementById("decryptInput").value;
+            fetch("/decrypt", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ encrypted_message: encryptedMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("decryptedOutput").innerText = data.decrypted_message;
+                } else {
+                    alert("Decryption failed: " + data.error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

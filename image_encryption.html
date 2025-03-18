@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Encryption</title>
+</head>
+<body>
+    <h2>Image Encryption</h2>
+
+    <input type="file" id="imageInput">
+    <button onclick="encryptImage()">Encrypt Image</button>
+
+    <h3>Encrypted Image Data:</h3>
+    <p id="encryptedImageOutput"></p>
+
+    <input type="text" id="decryptImageInput" placeholder="Enter encrypted image data">
+    <button onclick="decryptImage()">Decrypt Image</button>
+
+    <h3>Decrypted Image:</h3>
+    <img id="decryptedImage" alt="Decrypted Image" style="display:none; width:300px;">
+
+    <br><br>
+    <button onclick="window.location.href='/dashboard'">Back to Dashboard</button>
+
+    <script>
+        function encryptImage() {
+            let imageFile = document.getElementById("imageInput").files[0];
+            let formData = new FormData();
+            formData.append("image", imageFile);
+
+            fetch("/encrypt_image", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("encryptedImageOutput").innerText = data.encrypted_image;
+                } else {
+                    alert("Image Encryption Failed: " + data.error);
+                }
+            });
+        }
+
+        function decryptImage() {
+            let encryptedImageData = document.getElementById("decryptImageInput").value;
+            fetch("/decrypt_image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ encrypted_image: encryptedImageData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let img = document.getElementById("decryptedImage");
+                    img.src = "data:image/png;base64," + data.decrypted_image;
+                    img.style.display = "block";
+                } else {
+                    alert("Image Decryption Failed: " + data.error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

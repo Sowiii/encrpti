@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Encryption App</h1>
+
+        <!-- Text Encryption Section -->
+        <h2>Text Encryption</h2>
+        <p>Enter text to encrypt or decrypt:</p>
+        <input type="text" id="textInput" placeholder="Enter text here">
+        <br><br>
+        <button onclick="encryptText()">Encrypt</button>
+        <button id="unlock-btn" onclick="authenticateUser()">🔓 Unlock Encrypted Code</button>
+        <button id="decrypt-btn" onclick="decryptText()" disabled>Decrypt</button>
+        <p><strong>Encrypted Text:</strong> <span id="output"></span></p>
+        <p id="auth-status"></p>
+
+        <hr>
+
+        <!-- Image Encryption Section -->
+        <h2>Image Encryption</h2>
+        <p>Select an image to encrypt:</p>
+        <input type="file" id="imageInput" accept="image/*"><br><br>
+        <button onclick="encryptImage()">Encrypt</button>
+        <button id="unlock-img-btn" onclick="authenticateUserImage()">🔓 Unlock Encrypted Image</button>
+        <button id="decrypt-img-btn" onclick="decryptImage()" disabled>Decrypt</button>
+        <p><strong>Encrypted Image Code:</strong> <span id="imageOutput"></span></p>
+        <p id="image-auth-status"></p>
+        <img id="decryptedImage" style="display:none; max-width: 300px;">
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("output").style.display = "none";
+            document.getElementById("imageOutput").style.display = "none";
+        });
+
+        function encryptText() {
+            let text = document.getElementById("textInput").value;
+            let outputElement = document.getElementById("output");
+            outputElement.innerText = btoa(text); // Base64 Encryption
+            outputElement.style.display = "none"; // Hide encrypted text until authentication
+        }
+
+        function decryptText() {
+            let text = document.getElementById("output").innerText;
+            document.getElementById("output").innerText = atob(text); // Base64 Decryption
+        }
+
+        function encryptImage() {
+            let file = document.getElementById("imageInput").files[0];
+            let reader = new FileReader();
+            
+            reader.onloadend = function () {
+                let encryptedData = btoa(reader.result); // Base64 Encryption
+                let outputElement = document.getElementById("imageOutput");
+                outputElement.innerText = encryptedData;
+                outputElement.style.display = "none"; // Hide until authentication
+            };
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function authenticateUser() {
+            fetch("/authenticate", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    let outputElement = document.getElementById("output");
+                    let authStatus = document.getElementById("auth-status");
+                    let decryptBtn = document.getElementById("decrypt-btn");
+
+                    if (data.success) {
+                        authStatus.innerHTML = "✅ Access Granted!";
+                        authStatus.style.color = "green";
+                        outputElement.style.display = "block";  
+                        decryptBtn.disabled = false;  
+                    } else {
+                        authStatus.innerHTML = "❌ Access Denied!";
+                        authStatus.style.color = "red";
+                        outputElement.style.display = "none";
+                        decryptBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    document.getElementById("auth-status").innerHTML = "⚠️ Authentication Error!";
+                });
+        }
+
+        function authenticateUserImage() {
+            fetch("/authenticate", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    let outputElement = document.getElementById("imageOutput");
+                    let authStatus = document.getElementById("image-auth-status");
+                    let decryptBtn = document.getElementById("decrypt-img-btn");
+
+                    if (data.success) {
+                        authStatus.innerHTML = "✅ Access Granted!";
+                        authStatus.style.color = "green";
+                        outputElement.style.display = "block";  
+                        decryptBtn.disabled = false;  
+                    } else {
+                        authStatus.innerHTML = "❌ Access Denied!";
+                        authStatus.style.color = "red";
+                        outputElement.style.display = "none";
+                        decryptBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    document.getElementById("image-auth-status").innerHTML = "⚠️ Authentication Error!";
+                });
+        }
+
+        function decryptImage() {
+            let encryptedData = document.getElementById("imageOutput").innerText;
+            let decodedData = atob(encryptedData); // Base64 Decryption
+            
+            let img = document.getElementById("decryptedImage");
+            img.src = decodedData;
+            img.style.display = "block";
+        }
+    </script>
+
+</body>
+</html>

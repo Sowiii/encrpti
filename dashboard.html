@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Secure Encryption</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-page">
+    
+    <header class="navbar">
+        <h1>🔐 Secure Encryption Dashboard</h1>
+        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    </header>
+
+    <div class="dashboard-container">
+        <h2>Choose an Encryption Module</h2>
+        <div class="module-options">
+            <a href="{{ url_for('text_encryption') }}" class="module-box">
+                <h3>Text Encryption & Decryption</h3>
+                <p>Securely encrypt and decrypt messages.</p>
+            </a>
+            <a href="{{ url_for('image_encryption') }}" class="module-box">
+                <h3>Image Encryption & Decryption</h3>
+                <p>Encrypt and decrypt images with security.</p>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
