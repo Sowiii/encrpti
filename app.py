@@ -5,8 +5,10 @@ import subprocess
 from cryptography.fernet import Fernet
 import os
 import base64
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key")  # Secure key storage
 
 # -------------------- Database Configuration -------------------- #
